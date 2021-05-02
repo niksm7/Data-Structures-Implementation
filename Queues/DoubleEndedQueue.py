@@ -5,18 +5,18 @@ class Deque:
     def __init__(self):
         self.items = []
 
-    def addRear(self,data):
+    def addFront(self,data):
         self.items.insert(0,data)
     
-    def addFront(self,data):
+    def addRear(self,data):
         self.items.append(data)
     
-    def removeRear(self):
+    def removeFront(self):
         if not self.isEmpty():
             return self.items.pop(0)
         return "Queue Empty"
     
-    def removeFront(self):
+    def removeRear(self):
         if not self.isEmpty():
             return self.items.pop(-1)
         return "Queue Empty"
