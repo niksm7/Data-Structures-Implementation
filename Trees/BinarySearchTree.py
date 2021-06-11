@@ -44,6 +44,53 @@ class Node:
                 return True
     
 
+    def delete(self,data,root):
+        ''' This function is to delete the node with the value given'''
+
+        if self is None:
+            return None
+
+        # if current node's data is less than that of root node, then only search in left subtree else right subtree
+        if data < self.val and self.left is not None:
+            self.left = self.left.delete(data,root)
+        elif data > self.val and self.right is not None:
+            self.right = self.right.delete(data,root)
+
+        else:
+            # deleting node with one child
+            if self.left is None:
+
+                if self == root:
+                    temp = self.minValueNode(self.right)
+                    self.val = temp.val
+                    self.right = self.right.delete(temp.val,root) 
+
+                temp = self.right
+                self = None
+                return temp
+                
+            elif self.right is None:
+
+                if self == root:
+                    temp = self.findMaxValueNode(self.left)
+                    self.val = temp.val
+                    self.left = self.left.delete(temp.val,root) 
+
+                temp = self.left
+                self = None
+                return temp
+
+            # deleting node with two children
+            # first get the inorder successor
+            temp = self.findMinValueNode(self.right)
+            self.val = temp.val
+            self.right = self.right.delete(temp.val,root)
+
+        return self
+
+        
+
+
     def findMinValueNode(self,node):
         ''' As the smallest value node would be the element at the left most bottom of the tree so we move down leftwards untill the leaf node '''
 
@@ -90,6 +137,88 @@ class Node:
                 return self.right.find(val)
             else:
                 return False
+    
+
+    def printInternalExternalNodes(self,root):
+        ''' Internal nodes are basically the nodes which are not leaf nodes which means they have 1 or more than 1 child'''
+
+        # We perform this function by using "LEVEL ORDER TRAVERSAL" that is we consider elements level by level
+
+        # First we have the root node by default added 
+        q = [root]
+
+        # This will be the list of internal nodes
+        internal_nodes = []
+
+        # This will be the list of internal nodes
+        external_nodes = []
+
+        # We run this loop until the queue is empty which means we have visited all the nodes
+        while q:
+
+            # We always take the node at the 0th position
+            cur = q[0]
+
+            # And once we have the pointer set we simply remove that node marking it to be visited
+            q.pop(0)
+
+            # This is a flag to check if the node is internal or not
+            is_internal = 0
+
+            # If the current node has a left element 
+            if cur.left:
+
+                # Then we set the flag to true
+                is_internal = 1
+
+                # Also add the left node to our queue
+                q.append(cur.left)
+
+            # same as left
+            if cur.right:
+                is_internal = 1
+                internal_nodes.append(cur.val)
+                q.append(cur.right)
+            
+            # If it is found to be an internal node
+            if is_internal:
+                # Append it as internal node
+                internal_nodes.append(cur.val)
+
+            # Else it is an external node
+            else:
+                # Append it as external node
+                external_nodes.append(cur.val)
+
+        print("Internal Nodes: ",",".join(str(i) for i in set(internal_nodes)))
+        print("External Nodes: ",",".join(str(i) for i in set(external_nodes)))
+    
+
+    def mirrorTree(self,node):
+        '''Mirror of the tree means to basically swap the node positions as per the mirror version. Example for the same is:
+        
+         _12___                                     __12_
+        /      \                                   /     \
+        1     14_         MIRROR IMAGE            14_     1
+         \   /   \   ---------------------->     /   \   /
+          3 13  21_                             21   13  3
+                   \                           /
+                   25                         25
+
+        '''
+
+        if node is None:
+            return 
+
+        else:
+            
+            # We call all the subtrees present
+
+            self.mirrorTree(node.left)
+            self.mirrorTree(node.right)
+
+            # Now we perform swapping
+            node.left,node.right = node.right,node.left
 
 
     def countNodes(self,node):
@@ -193,11 +322,21 @@ class Tree:
         else:
             return self.root.insert(val)
     
+    def delete(self,data):
+        if self.root is not None:
+            return self.root.delete(data,self.root)
+        else:
+            print("Tree is Empty!")
+
     def find(self,val):
         if self.root is not None:
             return self.root.find(val)
         else:
             return False
+    
+    def printInternalExternalNodes(self):
+        if self.root is not None:
+            return self.root.printInternalExternalNodes(self.root)
     
     def preorder(self):
         if self.root is not None:
@@ -222,6 +361,10 @@ class Tree:
         if self.root is not None:
             print("Height of the Tree: ",self.root.findHeight(self.root))
     
+    def mirrorTree(self):
+        if self.root is not None:
+            return self.root.mirrorTree(self.root)
+
     def deleteTree(self):
         self.root = None
 
@@ -297,11 +440,17 @@ if __name__ == "__main__":
     tree.insert(13)
     tree.insert(25)
     print_tree(tree.root)
+    tree.delete(14)
+    print_tree(tree.root)
     tree.preorder()
     tree.inorder()
     tree.postorder()
     print("\nElement 12 Found?",tree.find(12))
     tree.countNodes()
     tree.findHeight()
+    tree.printInternalExternalNodes()
+    tree.mirrorTree()
+    print("Mirrored Tree - ")
+    print_tree(tree.root)
     tree.deleteTree()
     print_tree(tree.root)
